@@ -31,7 +31,7 @@ int image(int argc, char* argv[])
           cout << "*** CAMERA SELECTION ERROR" << endl;
           return -1;
         }
-  
+
 	unsigned long error;
 	bool quit;
 	char choice;
