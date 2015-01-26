@@ -133,22 +133,3 @@ int image(int argc, char* argv[])
 	return 0;
 }
 
-int CameraSelect (int iNumArgs, char* szArgList[])
-{
-  if (iNumArgs == 2) {
- 
-    at_32 lNumCameras;
-    GetAvailableCameras(&lNumCameras);
-    int iSelectedCamera = atoi(szArgList[1]);
- 
-    if (iSelectedCamera < lNumCameras && iSelectedCamera >= 0) {
-      at_32 lCameraHandle;
-      GetCameraHandle(iSelectedCamera, &lCameraHandle);
-      SetCurrentCamera(lCameraHandle);
-      return iSelectedCamera;
-    }
-    else
-      return -1;
-  }
-  return 0;
-}
