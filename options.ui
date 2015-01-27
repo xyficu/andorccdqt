@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>Options</class>
+ <widget class="QDialog" name="Options">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>400</width>
+    <height>300</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>Dialog</string>
+  </property>
+  <widget class="QPushButton" name="pushButton_StartCooler">
+   <property name="geometry">
+    <rect>
+     <x>40</x>
+     <y>130</y>
+     <width>97</width>
+     <height>31</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>Start Cooler</string>
+   </property>
+  </widget>
+  <widget class="QLineEdit" name="lineEdit_Temp">
+   <property name="geometry">
+    <rect>
+     <x>130</x>
+     <y>30</y>
+     <width>113</width>
+     <height>33</height>
+    </rect>
+   </property>
+  </widget>
+  <widget class="QLabel" name="label">
+   <property name="geometry">
+    <rect>
+     <x>30</x>
+     <y>40</y>
+     <width>101</width>
+     <height>21</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>Temperature:</string>
+   </property>
+  </widget>
+  <widget class="QPushButton" name="pushButton_StopCooler">
+   <property name="geometry">
+    <rect>
+     <x>190</x>
+     <y>130</y>
+     <width>97</width>
+     <height>31</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>Stop Cooler</string>
+   </property>
+  </widget>
+ </widget>
+ <resources/>
+ <connections/>
+</ui>

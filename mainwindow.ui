@@ -1,0 +1,307 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>MainWindow</class>
+ <widget class="QMainWindow" name="MainWindow">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>800</width>
+    <height>600</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>MainWindow</string>
+  </property>
+  <widget class="QWidget" name="centralwidget">
+   <widget class="QPushButton" name="pushButton_AcqImage">
+    <property name="geometry">
+     <rect>
+      <x>50</x>
+      <y>360</y>
+      <width>111</width>
+      <height>31</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Acquire Image</string>
+    </property>
+   </widget>
+   <widget class="QLabel" name="label">
+    <property name="geometry">
+     <rect>
+      <x>40</x>
+      <y>60</y>
+      <width>111</width>
+      <height>21</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>image path:</string>
+    </property>
+   </widget>
+   <widget class="QLineEdit" name="lineEdit_ImagePath">
+    <property name="geometry">
+     <rect>
+      <x>160</x>
+      <y>50</y>
+      <width>113</width>
+      <height>33</height>
+     </rect>
+    </property>
+   </widget>
+   <widget class="QLabel" name="label_2">
+    <property name="geometry">
+     <rect>
+      <x>40</x>
+      <y>100</y>
+      <width>101</width>
+      <height>21</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>image name:</string>
+    </property>
+   </widget>
+   <widget class="QLineEdit" name="lineEdit_ImageName">
+    <property name="geometry">
+     <rect>
+      <x>160</x>
+      <y>100</y>
+      <width>113</width>
+      <height>33</height>
+     </rect>
+    </property>
+   </widget>
+   <widget class="QLabel" name="label_3">
+    <property name="geometry">
+     <rect>
+      <x>280</x>
+      <y>100</y>
+      <width>41</width>
+      <height>21</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>surfix:</string>
+    </property>
+   </widget>
+   <widget class="QLineEdit" name="lineEdit_Surfix">
+    <property name="geometry">
+     <rect>
+      <x>330</x>
+      <y>100</y>
+      <width>113</width>
+      <height>33</height>
+     </rect>
+    </property>
+   </widget>
+   <widget class="QLabel" name="label_4">
+    <property name="geometry">
+     <rect>
+      <x>40</x>
+      <y>140</y>
+      <width>111</width>
+      <height>21</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>exposure time:</string>
+    </property>
+   </widget>
+   <widget class="QLineEdit" name="lineEdit_ExpTime">
+    <property name="geometry">
+     <rect>
+      <x>160</x>
+      <y>140</y>
+      <width>113</width>
+      <height>33</height>
+     </rect>
+    </property>
+   </widget>
+   <widget class="QLabel" name="label_5">
+    <property name="geometry">
+     <rect>
+      <x>40</x>
+      <y>190</y>
+      <width>101</width>
+      <height>21</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>image amount:</string>
+    </property>
+   </widget>
+   <widget class="QLineEdit" name="lineEdit_ImageAmount">
+    <property name="geometry">
+     <rect>
+      <x>160</x>
+      <y>180</y>
+      <width>113</width>
+      <height>33</height>
+     </rect>
+    </property>
+   </widget>
+   <widget class="QLabel" name="label_6">
+    <property name="geometry">
+     <rect>
+      <x>40</x>
+      <y>230</y>
+      <width>101</width>
+      <height>21</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>temperature:</string>
+    </property>
+   </widget>
+   <widget class="QLabel" name="label_7">
+    <property name="geometry">
+     <rect>
+      <x>40</x>
+      <y>260</y>
+      <width>101</width>
+      <height>21</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>cooler status:</string>
+    </property>
+   </widget>
+   <widget class="QLineEdit" name="lineEdit_Temp">
+    <property name="geometry">
+     <rect>
+      <x>160</x>
+      <y>220</y>
+      <width>113</width>
+      <height>33</height>
+     </rect>
+    </property>
+   </widget>
+   <widget class="QLineEdit" name="lineEdit_CoolerStat">
+    <property name="geometry">
+     <rect>
+      <x>160</x>
+      <y>260</y>
+      <width>113</width>
+      <height>33</height>
+     </rect>
+    </property>
+   </widget>
+   <widget class="QLabel" name="label_8">
+    <property name="geometry">
+     <rect>
+      <x>40</x>
+      <y>300</y>
+      <width>101</width>
+      <height>21</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>acquire status:</string>
+    </property>
+   </widget>
+   <widget class="QLabel" name="label_AcqStat">
+    <property name="geometry">
+     <rect>
+      <x>160</x>
+      <y>300</y>
+      <width>67</width>
+      <height>21</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>act stat</string>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="pushButton_AcqAmountImg">
+    <property name="geometry">
+     <rect>
+      <x>220</x>
+      <y>360</y>
+      <width>161</width>
+      <height>31</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Acq Amount Image</string>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="pushButton_CreatDir">
+    <property name="geometry">
+     <rect>
+      <x>330</x>
+      <y>50</y>
+      <width>97</width>
+      <height>31</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>create dir</string>
+    </property>
+   </widget>
+   <widget class="QCheckBox" name="checkBox_shutterOpen">
+    <property name="geometry">
+     <rect>
+      <x>330</x>
+      <y>150</y>
+      <width>131</width>
+      <height>26</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>shutter open</string>
+    </property>
+   </widget>
+  </widget>
+  <widget class="QMenuBar" name="menubar">
+   <property name="geometry">
+    <rect>
+     <x>0</x>
+     <y>0</y>
+     <width>800</width>
+     <height>27</height>
+    </rect>
+   </property>
+   <widget class="QMenu" name="menu_File">
+    <property name="title">
+     <string>&amp;File</string>
+    </property>
+    <addaction name="action_Exit"/>
+   </widget>
+   <widget class="QMenu" name="menu_Option">
+    <property name="title">
+     <string>&amp;Option</string>
+    </property>
+    <addaction name="action_Parametres"/>
+   </widget>
+   <widget class="QMenu" name="menu_About">
+    <property name="title">
+     <string>&amp;Help</string>
+    </property>
+    <addaction name="action_About"/>
+   </widget>
+   <addaction name="menu_File"/>
+   <addaction name="menu_Option"/>
+   <addaction name="menu_About"/>
+  </widget>
+  <widget class="QStatusBar" name="statusbar"/>
+  <action name="action_Parametres">
+   <property name="text">
+    <string>&amp;Parametres</string>
+   </property>
+  </action>
+  <action name="action_Exit">
+   <property name="text">
+    <string>&amp;Exit</string>
+   </property>
+  </action>
+  <action name="action_About">
+   <property name="text">
+    <string>&amp;About</string>
+   </property>
+  </action>
+ </widget>
+ <resources/>
+ <connections/>
+</ui>

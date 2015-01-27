@@ -2,6 +2,7 @@
 #define ANDORUSER_H
 #include "atmcdLXd.h"
 #include "ccdparams.h"
+#include <QTimer>
 
 #include <QObject>
 
@@ -12,7 +13,7 @@ public:
     explicit AndorUser(QObject *parent = 0);
     ~AndorUser();
 
-    void InitCamera();
+
 
 private:
     unsigned long error;
@@ -23,6 +24,7 @@ private:
 
     int CameraSelect (int iNumArgs, char* szArgList[]);
     AndorCcDParams *m_andorCcdParams;
+    QTimer m_timer;
 
 private slots:
     void UserSetImageSavPath(QString path);
@@ -37,20 +39,27 @@ private slots:
     void UserSetReadMode(qint32 readMode);
     void UserSetTemp(qint32 temp);
     void UserSetCoolerSwitch(bool coolerSwitch);
+
     void UserGetTemp(qint32 *temp);
     void UserGetCoolerSwitch(bool *coolerSwitch);
-    void UserGetStat(bool *isAcquireing);
+    void UserGetStat(bool *isAcquiring);
     void UserGetGain(qint32 *gain);
     void UserGetBinning(quint32 bin[2]);
     void UserGetImageSavPath(QString *path);
+    void UserAbortAcq();
 
     void UserCreateDir(QString path);
 
+    void InitCamera();
+    void UserGetImage();
+    void UserGetAmountImage();
+    void UserGetImage(QString fileName, bool shutterOpen, float expTime, qint32 amount=1);
+    void SelfUpdateStat();
 
 signals:
 
 public slots:
-    void GetImage();
+
 };
 
 #endif // ANDORUSER_H

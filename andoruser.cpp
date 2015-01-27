@@ -25,12 +25,16 @@ AndorUser::AndorUser(QObject *parent) : QObject(parent)
     m_andorCcdParams->width = 1024;
     m_andorCcdParams->height = 1024;
     m_andorCcdParams->readMode = 4;
+    m_andorCcdParams->connected = false;
+
+    connect(&m_timer, SIGNAL(timeout()), this, SLOT(SelfUpdateStat()));
+    m_timer.start(100);
 
 }
 
 AndorUser::~AndorUser()
 {
-
+    m_timer.stop();
 }
 
 void AndorUser::InitCamera()
@@ -39,8 +43,11 @@ void AndorUser::InitCamera()
     error = Initialize("/usr/local/etc/andor");
     if(error!=DRV_SUCCESS){
         qDebug() << "Initialisation error...exiting" ;
+        m_andorCcdParams->connected = false;
         return;
     }
+    else
+        m_andorCcdParams->connected = true;
 
     QThread::sleep(2);//sleep to allow initialization to complete
 
@@ -61,6 +68,7 @@ void AndorUser::InitCamera()
 
         //Setup Image dimensions
     SetImage(1,1,1,width,1,height);
+
 }
 
 void AndorUser::UserSetImageSavPath(QString path)
@@ -69,35 +77,117 @@ void AndorUser::UserSetImageSavPath(QString path)
     if(QFileInfo::exists(path))
     {
         m_andorCcdParams->imgSavPath = path;
+        qDebug()<<"Image path: "<<path<<" set successfully.";
     }
     else
     {
         // if path is not exist, create it
         qDebug()<<"Image path: "<<path<<" is not exist";
-        QDir dir;
-        if(dir.mkpath(path))
-            qDebug()<<"mkdir "<<path<<" successfully!";
 
     }
 }
 
-void AndorUser::GetImage()
+void AndorUser::UserGetImage()
 {
-    StartAcquisition();
 
-    int status;
-    at_32* imageData = new at_32[width*height];
+    if(m_andorCcdParams->connected == true)
+    {
+        StartAcquisition();
 
-    //Loop until acquisition finished
-    GetStatus(&status);
-    while(status==DRV_ACQUIRING) GetStatus(&status);
+        int status;
 
-    GetAcquiredData(imageData, width*height);
+        //Loop until acquisition finished
+        m_andorCcdParams->isAcquiring = true;
+        GetStatus(&status);
+        while(status==DRV_ACQUIRING) GetStatus(&status);
+        m_andorCcdParams->isAcquiring = false;
 
-//    SaveAsBmp("./image.bmp", "./GREY.PAL", 0, 0);
-    SaveAsFITS("./image.fits", 0);
+        SaveAsFITS("./image.fits", 0);
 
-    delete[] imageData;
+    }
+}
+
+void AndorUser::UserGetAmountImage()
+{
+
+}
+
+void AndorUser::UserGetImage(QString fileName, bool shutterOpen, float expTime, qint32 amount)
+{
+    //if camera is not connected, return
+    if(m_andorCcdParams->connected==false)
+        return;
+
+    //set shutter
+    switch (shutterOpen) {
+    case true:
+        SetShutter(1, 0, 50, 50);
+        break;
+    case false:
+        SetShutter(1, 2, 50, 50);
+    default:
+        break;
+    }
+
+    //set exposure time
+    SetExposureTime(expTime);
+
+    //set path and file name
+    QString baseFileName = m_andorCcdParams->imgSavPath+"/"+fileName;
+
+    //acq image
+//    if(amount == 1)
+//    {
+//        StartAcquisition();
+
+//        m_andorCcdParams->isAcquiring=true;
+//        WaitForAcquisition();
+//        m_andorCcdParams->isAcquiring=false;
+
+//        SaveAsFITS(baseFileName.toLatin1().data(), 0);
+//    }
+//    else
+    {
+        for(int i=0; i<amount; i++)
+        {
+            StartAcquisition();
+
+            m_andorCcdParams->isAcquiring=true;
+            WaitForAcquisition();
+            m_andorCcdParams->isAcquiring=false;
+
+            QString surfix;
+            surfix.sprintf("%06d", i+1);
+            SaveAsFITS((baseFileName
+                       +"_"
+                       +surfix).toLatin1().data(), 0);
+        }
+    }
+
+
+}
+
+
+void AndorUser::SelfUpdateStat()
+{
+    if(m_andorCcdParams->connected == true)
+    {
+        unsigned int state;
+        //cooler status
+        state = GetTemperature(&m_andorCcdParams->temp);
+        switch (state) {
+        case DRV_TEMPERATURE_NOT_REACHED:
+            m_andorCcdParams->coolerSwitch=true;
+            break;
+        case DRV_TEMPERATURE_OFF:
+            m_andorCcdParams->coolerSwitch=false;
+            break;
+        default:
+            break;
+        }
+
+
+    }
 }
 
 void AndorUser::UserSetExpTime(float time)
@@ -175,47 +265,19 @@ void AndorUser::UserGetTemp(qint32 *temp)
 {
 
     //for getting the current state of the cooler
-    unsigned int state=GetTemperature(temp);
-    m_andorCcdParams->temp = *temp;
-    switch(state){
-    case DRV_TEMPERATURE_OFF:
-        m_andorCcdParams->coolerSwitch=false;
-        break;
-    case DRV_TEMPERATURE_NOT_REACHED:
-        m_andorCcdParams->coolerSwitch=true;
-        break;
-    default: break;
-    }
+    *temp = m_andorCcdParams->temp;
+
 }
 
 void AndorUser::UserGetCoolerSwitch(bool *coolerSwitch)
 {
     //for getting the current state of the cooler
-    qint32 temp;
-    unsigned int state=GetTemperature(&temp);
-    m_andorCcdParams->temp = temp;
-    switch(state){
-    case DRV_TEMPERATURE_OFF:
-        *coolerSwitch = false;
-        m_andorCcdParams->coolerSwitch=false;
-        break;
-    case DRV_TEMPERATURE_NOT_REACHED:
-        *coolerSwitch = true;
-        m_andorCcdParams->coolerSwitch=true;
-        break;
-    default:
-        break;
-    }
+    *coolerSwitch = m_andorCcdParams->coolerSwitch;
 }
 
-void AndorUser::UserGetStat(bool *isAcquireing)
+void AndorUser::UserGetStat(bool *isAcquiring)
 {
-    int stat;
-    GetStatus(&stat);
-    if(stat == DRV_ACQUIRING)
-        *isAcquireing = true;
-    else
-        *isAcquireing = false;
+    *isAcquiring=m_andorCcdParams->isAcquiring;
 }
 
 void AndorUser::UserGetGain(qint32 *gain)
@@ -232,6 +294,12 @@ void AndorUser::UserGetBinning(quint32 bin[])
 void AndorUser::UserGetImageSavPath(QString *path)
 {
     *path = m_andorCcdParams->imgSavPath;
+}
+
+void AndorUser::UserAbortAcq()
+{
+    if(m_andorCcdParams->connected == true)
+        AbortAcquisition();
 }
 
 void AndorUser::UserCreateDir(QString path)

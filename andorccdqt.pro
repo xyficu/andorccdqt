@@ -13,17 +13,22 @@ TEMPLATE = app
 
 
 SOURCES += main.cpp\
-        widget.cpp \
     image.cpp \
     andoruser.cpp \
-    generic.cpp
+    generic.cpp \
+    mainwindow.cpp \
+    options.cpp
 
-HEADERS  += widget.h \
+HEADERS  += \
     atmcdLXd.h \
     andoruser.h \
-    ccdparams.h
+    ccdparams.h \
+    mainwindow.h \
+    options.h
 
-FORMS    += widget.ui
+FORMS    += \
+    mainwindow.ui \
+    options.ui
 
 DISTFILES +=
 

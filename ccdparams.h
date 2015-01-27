@@ -30,4 +30,5 @@ public:
     qint32 width;
     qint32 height;
     qint32 readMode;
+    bool connected;
 };
