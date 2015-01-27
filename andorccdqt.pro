@@ -36,3 +36,10 @@ unix:!macx: LIBS += -L$$PWD/ -landor
 
 INCLUDEPATH += $$PWD/
 DEPENDPATH += $$PWD/
+
+unix:!macx: LIBS += -L$$PWD/ -lcfitsio
+
+INCLUDEPATH += $$PWD/
+DEPENDPATH += $$PWD/
+
+unix:!macx: PRE_TARGETDEPS += $$PWD/libcfitsio.a

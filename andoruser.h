@@ -3,8 +3,9 @@
 #include "atmcdLXd.h"
 #include "ccdparams.h"
 #include <QTimer>
-
 #include <QObject>
+#include "fitsio.h"
+#include "QProcess"
 
 class AndorUser : public QObject
 {
@@ -25,6 +26,9 @@ private:
     int CameraSelect (int iNumArgs, char* szArgList[]);
     AndorCcDParams *m_andorCcdParams;
     QTimer m_timer;
+    QProcess m_process;
+
+    void WriteFitsKeys(QString fileName);
 
 private slots:
     void UserSetImageSavPath(QString path);
