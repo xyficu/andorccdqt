@@ -299,6 +299,9 @@ void AndorUser::SelfUpdateStat()
             break;
         }
 
+        //emccd gain
+        GetEMCCDGain(&m_andorCcdParams->gain);
+
 
     }
 }
@@ -341,7 +344,7 @@ void AndorUser::UserSetFileAmount(qint32 fileAmount)
 
 void AndorUser::UserSetGain(qint32 gain)
 {
-    SetGain(gain);
+    SetEMCCDGain(gain);
     m_andorCcdParams->gain = gain;
 }
 
