@@ -9,14 +9,16 @@ MainWindow::MainWindow(QWidget *parent) :
 {
     ui->setupUi(this);
 
+    //set window tilte
+    setWindowTitle("Andor EMCCD Controller");
+
     ui->lineEdit_ImagePath->setText("./");
     ui->lineEdit_ExpTime->setText("0.1");
-    ui->lineEdit_ImageAmount->setText("2");
+    ui->lineEdit_ImageAmount->setText("3");
     ui->lineEdit_ImageName->setText("test");
-    ui->lineEdit_Temp->setText("-80");
-    ui->lineEdit_Surfix->setText("0000");
-
-
+    ui->label_Temp->setText("unknown..");
+//    ui->checkBox_shutterOpen->setChecked(true);
+    m_connect=false;
 
     m_andorUser.moveToThread(&m_andorThread);
     m_andorThread.start();
@@ -35,11 +37,13 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(this, SIGNAL(MGetAmountImage()), &m_andorUser, SLOT(UserGetAmountImage()), Qt::QueuedConnection);
     connect(this, SIGNAL(MGetImage(QString,bool,float,qint32)),
             &m_andorUser, SLOT(UserGetImage(QString,bool,float,qint32)), Qt::QueuedConnection);
+    connect(this, SIGNAL(MGetConnect(bool*)), &m_andorUser, SLOT(UserGetConnect(bool*)), Qt::DirectConnection);
 
     emit MInitCamera();
 
     connect(&m_timer, SIGNAL(timeout()), this, SLOT(UpdateStatus()));
     m_timer.start(100);
+
 
 }
 
@@ -60,32 +64,29 @@ void MainWindow::UpdateStatus()
 //    qDebug()<<m_dateTime.toString("yyyy-MM-dd hh:mm:ss.zzz");
 
     //get cooler status
-
     emit MGetCoolerSwitch(&m_coolerStatus);
     switch(m_coolerStatus)
     {
     case true:
-        ui->lineEdit_CoolerStat->setText("ON");
+        ui->label_CoolerStat->setText("ON");
         break;
     case false:
-        ui->lineEdit_CoolerStat->setText("OFF");
+        ui->label_CoolerStat->setText("OFF");
         break;
     default:
-        ui->lineEdit_CoolerStat->setText("Unknown");
+        ui->label_CoolerStat->setText("Unknown");
         break;
     }
 
     //get cooler temperature
-
     emit MGetTemp(&m_temp);
-    ui->lineEdit_Temp->setText(QString::number(m_temp));
+    ui->label_Temp->setText(QString::number(m_temp));
 
     //get acq status
-
     emit MGetStat(&m_acqStat);
     switch (m_acqStat) {
     case true:
-        ui->label_AcqStat->setText("acquiring...");
+        ui->label_AcqStat->setText("<font color=red>acquiring...</font>");
         break;
     case false:
         ui->label_AcqStat->setText("stopped.");
@@ -95,7 +96,18 @@ void MainWindow::UpdateStatus()
         break;
     }
 
-
+    //get connect status
+    emit MGetConnect(&m_connect);
+    switch (m_connect) {
+    case true:
+        ui->label_conStat->setText("<font color=green>CCD connected.</font>");
+        break;
+    case false:
+        ui->label_conStat->setText("<font color=red>CCD not connected.</font>");
+        break;
+    default:
+        break;
+    }
 
 }
 
@@ -118,7 +130,7 @@ void MainWindow::on_pushButton_AcqAmountImg_clicked()
 
 
     emit MGetImage(ui->lineEdit_ImageName->text(),
-                   ui->checkBox_shutterOpen->checkState()==Qt::Checked?true:false,
+                   true, //ui->checkBox_shutterOpen->checkState()==Qt::Checked?true:false,
                    ui->lineEdit_ExpTime->text().toFloat(),
                    ui->lineEdit_ImageAmount->text().toInt());
 }

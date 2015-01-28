@@ -27,6 +27,8 @@ AndorUser::AndorUser(QObject *parent) : QObject(parent)
     m_andorCcdParams->readMode = 4;
     m_andorCcdParams->connected = false;
 
+//    InitCamera();
+
     connect(&m_timer, SIGNAL(timeout()), this, SLOT(SelfUpdateStat()));
     m_timer.start(100);
 
@@ -409,6 +411,12 @@ void AndorUser::UserAbortAcq()
 {
     if(m_andorCcdParams->connected == true)
         AbortAcquisition();
+}
+
+void AndorUser::UserGetConnect(bool *connect)
+{
+    *connect=m_andorCcdParams->connected;
+//    qDebug()<<"m_andorCcdParams->connected"<<m_andorCcdParams->connected;
 }
 
 void AndorUser::UserCreateDir(QString path)

@@ -17,14 +17,16 @@ SOURCES += main.cpp\
     andoruser.cpp \
     generic.cpp \
     mainwindow.cpp \
-    options.cpp
+    options.cpp \
+    andortcp.cpp
 
 HEADERS  += \
     atmcdLXd.h \
     andoruser.h \
     ccdparams.h \
     mainwindow.h \
-    options.h
+    options.h \
+    andortcp.h
 
 FORMS    += \
     mainwindow.ui \

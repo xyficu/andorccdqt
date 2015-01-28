@@ -58,6 +58,7 @@ private slots:
     void UserGetBinning(quint32 bin[2]);
     void UserGetImageSavPath(QString *path);
     void UserAbortAcq();
+    void UserGetConnect(bool *connect);
 
     void UserCreateDir(QString path);
 

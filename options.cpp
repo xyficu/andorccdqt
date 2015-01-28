@@ -7,6 +7,8 @@ Options::Options(QWidget *parent) :
 {
     ui->setupUi(this);
     m_Parent = (MainWindow*)parent;
+    //set window tilte
+    setWindowTitle("Options");
 }
 
 Options::~Options()

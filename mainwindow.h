@@ -26,9 +26,10 @@ private:
     QTimer m_timer;
     QDateTime m_dateTime;
 
-        bool m_coolerStatus;
-        qint32 m_temp;
-            bool m_acqStat;
+    bool m_coolerStatus;
+    qint32 m_temp;
+    bool m_acqStat;
+    bool m_connect;
 
 
 private slots:
@@ -55,7 +56,7 @@ signals:
     void MGetStat(bool *isAcquiring);
     void MGetAmountImage();
     void MGetImage(QString fileName, bool shutterOpen, float expTime, qint32 amount=1);
-
+    void MGetConnect(bool *connect);
 
 };
 

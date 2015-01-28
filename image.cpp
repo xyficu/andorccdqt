@@ -39,7 +39,7 @@ int image(int argc, char* argv[])
 	int width, height;
 
 	//Initialize CCD
-	error = Initialize("/usr/local/etc/andor");
+//	error = Initialize("/usr/local/etc/andor");
 	if(error!=DRV_SUCCESS){
 		cout << "Initialisation error...exiting" << endl;
 		return(1);
