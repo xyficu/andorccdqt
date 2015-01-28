@@ -4,6 +4,8 @@
 #include <QObject>
 #include <qabstractsocket.h>
 #include "andoruser.h"
+#include <QTimer>
+#include <QDateTime>
 
 class QTcpSocket;
 
@@ -20,11 +22,14 @@ private:
     quint16 m_blockSize;
     bool m_tcpCon;
     AndorCcDParams m_andorCcdParams;
+    QTimer m_tmrHouseKp;
+    QDateTime m_dateTime;
 
     void ResolveMessage(QString msg);
     void ReConnToHost();
     void RegisterDevice();
     void DeregisterDevice();
+
 
 private slots:
     void NewConnect();
@@ -34,7 +39,7 @@ private slots:
     void OnDisconnected();
     void OnAboutToClose();
     void StopConnect();
-
+    void HouseKeeping();
 
 signals:
     void TGetImage(QString fileName, bool shutterOpen, float expTime, qint32 amount=1);

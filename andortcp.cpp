@@ -11,6 +11,9 @@ AndorTcp::AndorTcp(QObject *parent) : QObject(parent)
     connect(m_tcpSocket, SIGNAL(connected()), this, SLOT(OnConnected()));
     connect(m_tcpSocket, SIGNAL(aboutToClose()), this, SLOT(OnAboutToClose()));
     connect(m_tcpSocket, SIGNAL(disconnected()), this, SLOT(OnDisconnected()));
+
+    connect(&m_tmrHouseKp, SIGNAL(timeout()), this, SLOT(HouseKeeping()));
+    m_tmrHouseKp.start(10000);
 }
 
 AndorTcp::~AndorTcp()
@@ -179,6 +182,21 @@ void AndorTcp::DeregisterDevice()
     QByteArray deviceDeregMsg = QByteArray("RCCD");
     m_tcpSocket->write(deviceDeregMsg);
     m_tcpSocket->waitForBytesWritten();
+}
+
+void AndorTcp::HouseKeeping()
+{
+    if(m_tcpCon == true)
+    {
+        //get local time YYYYMMDDTHHMMSS.SSS
+        m_dateTime=QDateTime::currentDateTime();
+        QString lt = m_dateTime.toString("yyyyMMddThhmmss.zzz");
+
+        //send HouseKeeping message
+        QByteArray msg = QByteArray("RC,HOUSEKEEPING,"+lt.toLatin1());
+        m_tcpSocket->write(msg);
+        m_tcpSocket->waitForBytesWritten();
+    }
 }
 
 void AndorTcp::NewConnect()
