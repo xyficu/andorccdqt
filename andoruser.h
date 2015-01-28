@@ -6,6 +6,7 @@
 #include <QObject>
 #include "fitsio.h"
 #include "QProcess"
+#include "xpa.h"
 
 class AndorUser : public QObject
 {
@@ -26,9 +27,15 @@ private:
     int CameraSelect (int iNumArgs, char* szArgList[]);
     AndorCcDParams *m_andorCcdParams;
     QTimer m_timer;
-    QProcess m_process;
+    QProcess m_procDs9;
+    QProcess m_procXpa;
+    QStringList m_argsDs9;
+    QString m_argsXpa;
+    QString m_ds9Id;
 
     void WriteFitsKeys(QString fileName);
+    void StartDs9();
+    void DisplayImage(QString fileName, QString ds9Id);
 
 private slots:
     void UserSetImageSavPath(QString path);

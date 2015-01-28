@@ -30,13 +30,22 @@ AndorUser::AndorUser(QObject *parent) : QObject(parent)
     connect(&m_timer, SIGNAL(timeout()), this, SLOT(SelfUpdateStat()));
     m_timer.start(100);
 
-    m_process.start("./ds9");
+    m_ds9Id = "FUT";
+    StartDs9();
+
 
 }
 
 AndorUser::~AndorUser()
 {
+    //stop timer
     m_timer.stop();
+
+    //close ds9 process
+    m_procDs9.close();
+    m_procDs9.deleteLater();
+
+    //shutdown ccd
     ShutDown();
 }
 
@@ -115,6 +124,29 @@ void AndorUser::WriteFitsKeys(QString fileName)
     if(status)
         qDebug()<<"stderr:"<<stderr<<" status:"<<status;
 
+}
+
+void AndorUser::StartDs9()
+{
+    //start ds9
+    m_procDs9.setEnvironment(m_procDs9.environment());
+    m_argsDs9 << "-title";
+    m_argsDs9 << m_ds9Id;
+    m_procDs9.start("./bin/ds9", m_argsDs9);
+    m_procDs9.waitForStarted();
+}
+
+void AndorUser::DisplayImage(QString fileName, QString ds9Id)
+{
+
+    //start XPA
+    m_argsXpa = "./bin/xpaset "+
+            ds9Id+
+            " fits "+
+            fileName+
+            " < "+
+            fileName;
+    system(m_argsXpa.toLatin1().data());
 }
 
 void AndorUser::InitCamera()
@@ -235,6 +267,8 @@ void AndorUser::UserGetImage(QString fileName, bool shutterOpen, float expTime, 
         qDebug()<<"fits file name: "<<fitsFileName;
 
         WriteFitsKeys(fitsFileName);
+
+        DisplayImage(fitsFileName, m_ds9Id);
 
 
     }
