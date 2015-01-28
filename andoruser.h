@@ -45,8 +45,7 @@ private slots:
     void UserSetFileAmount(qint32 fileAmount);
     void UserSetGain(qint32 gain);
     void UserSetGainSwitch(bool gainSwitch);
-    void UserSetBinning(qint32 bin[]);
-    void UserSetBinningSwitch(bool binSwitch);
+    void UserSetBinning(qint32 binx, qint32 biny);
     void UserSetReadMode(qint32 readMode);
     void UserSetTemp(qint32 temp);
     void UserSetCoolerSwitch(bool coolerSwitch);
@@ -67,6 +66,7 @@ private slots:
     void UserGetAmountImage();
     void UserGetImage(QString fileName, bool shutterOpen, float expTime, qint32 amount=1);
     void SelfUpdateStat();
+    void UserGetAllStat(qint32 *temp, bool *coolerSwitch, bool *isAcq, qint32 *gain, qint32 *binx, qint32 *biny, QString *imgSavPath);
 
 signals:
 

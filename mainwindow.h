@@ -6,6 +6,7 @@
 #include <QThread>
 #include <QTimer>
 #include <QTime>
+#include "andortcp.h"
 
 namespace Ui {
 class MainWindow;
@@ -19,12 +20,15 @@ public:
     explicit MainWindow(QWidget *parent = 0);
     ~MainWindow();
 
-    AndorUser m_andorUser;
+
 private:
     Ui::MainWindow *ui;
+    AndorUser m_andorUser;
     QThread m_andorThread;
     QTimer m_timer;
     QDateTime m_dateTime;
+    AndorTcp m_andorTcp;
+    QThread m_andorTcpThread;
 
     bool m_coolerStatus;
     qint32 m_temp;
@@ -57,6 +61,9 @@ signals:
     void MGetAmountImage();
     void MGetImage(QString fileName, bool shutterOpen, float expTime, qint32 amount=1);
     void MGetConnect(bool *connect);
+
+    void MStartConToHost();
+    void MStopConToHost();
 
 };
 

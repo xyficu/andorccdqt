@@ -63,13 +63,13 @@ void AndorUser::WriteFitsKeys(QString fileName)
     fits_delete_key(fptr, "COMMENT", &status);
     fits_delete_key(fptr, "COMMENT", &status);
 
-    fits_get_hdrspace(fptr, &nkeys, NULL, &status);
-    for(int i=1; i<=nkeys; i++)
-    {
-        fits_read_record(fptr, i, card, &status);
-        qDebug()<<i<<":"<<card;
-    }
-    qDebug()<<"END";
+//    fits_get_hdrspace(fptr, &nkeys, NULL, &status);
+//    for(int i=1; i<=nkeys; i++)
+//    {
+//        fits_read_record(fptr, i, card, &status);
+//        qDebug()<<i<<":"<<card;
+//    }
+//    qDebug()<<"END";
 
     //write keyword
 //    char *value = "keyvalue";
@@ -182,6 +182,8 @@ void AndorUser::InitCamera()
 
         //Setup Image dimensions
     SetImage(1,1,1,width,1,height);
+    m_andorCcdParams->bin[0]=1;
+    m_andorCcdParams->bin[1]=1;
 
 }
 
@@ -301,6 +303,20 @@ void AndorUser::SelfUpdateStat()
     }
 }
 
+void AndorUser::UserGetAllStat(qint32 *temp, bool *coolerSwitch, bool *isAcq, qint32 *gain, qint32 *binx, qint32 *biny, QString *imgSavPath)
+{
+    if(true == m_andorCcdParams->connected)
+    {
+        *temp = m_andorCcdParams->temp;
+        *coolerSwitch = m_andorCcdParams->coolerSwitch;
+        *isAcq = m_andorCcdParams->isAcquiring;
+        *gain = m_andorCcdParams->gain;
+        *binx = m_andorCcdParams->bin[0];
+        *biny = m_andorCcdParams->bin[1];
+        *imgSavPath = m_andorCcdParams->imgSavPath;
+    }
+}
+
 void AndorUser::UserSetExpTime(float time)
 {
     SetExposureTime(time);
@@ -334,16 +350,13 @@ void AndorUser::UserSetGainSwitch(bool gainSwitch)
     m_andorCcdParams->gainSwitch = false;
 }
 
-void AndorUser::UserSetBinning(qint32 bin[])
+void AndorUser::UserSetBinning(qint32 binx, qint32 biny)
 {
-    m_andorCcdParams->bin[0] = bin[0];
-    m_andorCcdParams->bin[1] = bin[1];
+    SetImage(binx, biny, 1, width,1,height);
+    m_andorCcdParams->bin[0] = binx;
+    m_andorCcdParams->bin[1] = biny;
 }
 
-void AndorUser::UserSetBinningSwitch(bool binSwitch)
-{
-
-}
 
 void AndorUser::UserSetReadMode(qint32 readMode)
 {

@@ -44,6 +44,23 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(&m_timer, SIGNAL(timeout()), this, SLOT(UpdateStatus()));
     m_timer.start(100);
 
+    //setup tcp signals to device slots
+    connect(&m_andorTcp, SIGNAL(TSetCoolerSwitch(bool)), &m_andorUser, SLOT(UserSetCoolerSwitch(bool)), Qt::QueuedConnection);
+    connect(&m_andorTcp, SIGNAL(TSetTemp(qint32)), &m_andorUser, SLOT(UserSetTemp(qint32)), Qt::QueuedConnection);
+    connect(&m_andorTcp, SIGNAL(TSetImageSavPath(QString)), &m_andorUser, SLOT(UserSetImageSavPath(QString)), Qt::QueuedConnection);
+    connect(&m_andorTcp, SIGNAL(TGetImage(QString,bool,float,qint32)), &m_andorUser, SLOT(UserGetImage(QString,bool,float,qint32)), Qt::QueuedConnection);
+    connect(&m_andorTcp, SIGNAL(TGetAllStat(qint32*,bool*,bool*,qint32*,qint32*,qint32*,QString*)),
+            &m_andorUser, SLOT(UserGetAllStat(qint32*,bool*,bool*,qint32*,qint32*,qint32*,QString*)), Qt::DirectConnection);
+    connect(&m_andorTcp, SIGNAL(TSetGain(qint32)), &m_andorUser, SLOT(UserSetGain(qint32)), Qt::QueuedConnection);
+    connect(&m_andorTcp, SIGNAL(TSetBin(qint32,qint32)), &m_andorUser, SLOT(UserSetBinning(qint32,qint32)), Qt::QueuedConnection);
+
+    //setup ui signal to tcp slots
+    connect(this, SIGNAL(MStartConToHost()), &m_andorTcp, SLOT(NewConnect()), Qt::QueuedConnection);
+    connect(this, SIGNAL(MStopConToHost()), &m_andorTcp, SLOT(StopConnect()), Qt::DirectConnection);
+
+    m_andorTcp.moveToThread(&m_andorTcpThread);
+    m_andorTcpThread.start();
+    emit MStartConToHost();
 
 }
 
@@ -56,6 +73,11 @@ MainWindow::~MainWindow()
     m_andorThread.exit();
     m_andorThread.wait();
     m_andorThread.deleteLater();
+
+    emit MStopConToHost();
+    m_andorTcpThread.quit();
+    m_andorTcpThread.wait();
+    m_andorTcpThread.deleteLater();
 }
 
 void MainWindow::UpdateStatus()
