@@ -34,6 +34,8 @@ private:
     qint32 m_temp;
     bool m_acqStat;
     bool m_connect;
+    qint32 m_curNumb;
+    float m_acqProc;
 
 
 private slots:
@@ -45,6 +47,8 @@ private slots:
     void on_pushButton_AcqAmountImg_clicked();
 
     void on_pushButton_CreatDir_clicked();
+
+    void on_pushButton_AbortAcq_clicked();
 
 signals:
     void MInitCamera();
@@ -61,6 +65,9 @@ signals:
     void MGetAmountImage();
     void MGetImage(QString fileName, bool shutterOpen, float expTime, qint32 amount=1);
     void MGetConnect(bool *connect);
+    void MAbortAcq();
+    void MGetAcqProc(float *acqProc);
+    void MGetCurNumb(qint32 *curNumb);
 
     void MStartConToHost();
     void MStopConToHost();

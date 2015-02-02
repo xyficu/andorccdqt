@@ -7,13 +7,16 @@ Options::Options(QWidget *parent) :
 {
     ui->setupUi(this);
     m_Parent = (MainWindow*)parent;
+    ui->lineEdit_Temp->setText("-80");
     //set window tilte
     setWindowTitle("Options");
+
 }
 
 Options::~Options()
 {
     delete ui;
+
 }
 
 void Options::on_pushButton_clicked()

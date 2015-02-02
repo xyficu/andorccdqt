@@ -31,4 +31,6 @@ public:
     qint32 height;
     qint32 readMode;
     bool connected;
+    qint32 curNumb;
+    float acqProc;
 };

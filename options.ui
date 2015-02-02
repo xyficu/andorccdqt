@@ -16,8 +16,8 @@
   <widget class="QPushButton" name="pushButton_StartCooler">
    <property name="geometry">
     <rect>
-     <x>40</x>
-     <y>130</y>
+     <x>60</x>
+     <y>160</y>
      <width>97</width>
      <height>31</height>
     </rect>
@@ -29,8 +29,8 @@
   <widget class="QLineEdit" name="lineEdit_Temp">
    <property name="geometry">
     <rect>
-     <x>130</x>
-     <y>30</y>
+     <x>160</x>
+     <y>70</y>
      <width>113</width>
      <height>33</height>
     </rect>
@@ -39,8 +39,8 @@
   <widget class="QLabel" name="label">
    <property name="geometry">
     <rect>
-     <x>30</x>
-     <y>40</y>
+     <x>60</x>
+     <y>80</y>
      <width>101</width>
      <height>21</height>
     </rect>
@@ -52,8 +52,8 @@
   <widget class="QPushButton" name="pushButton_StopCooler">
    <property name="geometry">
     <rect>
-     <x>190</x>
-     <y>130</y>
+     <x>180</x>
+     <y>160</y>
      <width>97</width>
      <height>31</height>
     </rect>

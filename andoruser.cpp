@@ -3,6 +3,7 @@
 #include <QThread>
 #include <QFileInfo>
 #include <QDir>
+#include <QFile>
 
 AndorUser::AndorUser(QObject *parent) : QObject(parent)
 {
@@ -26,11 +27,13 @@ AndorUser::AndorUser(QObject *parent) : QObject(parent)
     m_andorCcdParams->height = 1024;
     m_andorCcdParams->readMode = 4;
     m_andorCcdParams->connected = false;
+    m_andorCcdParams->curNumb=0;
 
 //    InitCamera();
 
-    connect(&m_timer, SIGNAL(timeout()), this, SLOT(SelfUpdateStat()));
+    connect(&m_timer, SIGNAL(timeout()), this, SLOT(SelfUpdateStat()), Qt::QueuedConnection);
     m_timer.start(100);
+
 
     m_ds9Id = "FUT";
     StartDs9();
@@ -136,6 +139,11 @@ void AndorUser::StartDs9()
     m_argsDs9 << m_ds9Id;
     m_procDs9.start("./bin/ds9", m_argsDs9);
     m_procDs9.waitForStarted();
+
+//    m_argsDs9 = "./bin/ds9 "
+//            " -title "+
+//            m_ds9Id;
+//    system(m_argsDs9.toLatin1().data());
 }
 
 void AndorUser::DisplayImage(QString fileName, QString ds9Id)
@@ -148,7 +156,22 @@ void AndorUser::DisplayImage(QString fileName, QString ds9Id)
             fileName+
             " < "+
             fileName;
+//    m_argsXpa << "./bin/xpaset";
+//    m_argsXpa << ds9Id;
+//    m_argsXpa << "fits";
+//    m_argsXpa << fileName;
+//    m_argsXpa << "<";
+//    m_argsXpa << fileName;
     system(m_argsXpa.toLatin1().data());
+
+//    m_argsXpa << ds9Id;
+//    m_argsXpa << "fits";
+//    m_argsXpa << fileName;
+//    m_argsXpa << "<";
+//    m_argsXpa << fileName;
+//    m_procXpa.start("./bin/xpaset", m_argsXpa);
+
+
 }
 
 void AndorUser::InitCamera()
@@ -247,14 +270,18 @@ void AndorUser::UserGetImage(QString fileName, bool shutterOpen, float expTime, 
 
     //set exposure time
     SetExposureTime(expTime);
+    m_andorCcdParams->expTime=expTime;
 
     //set path and file name
     QString baseFileName = m_andorCcdParams->imgSavPath+"/"+fileName;
+    m_andorCcdParams->fileAmount=amount;
 
     //acq image
 
-    for(int i=0; i<amount; i++)
+    qint32 j=0;
+    for(m_andorCcdParams->curNumb=0; m_andorCcdParams->curNumb<amount; m_andorCcdParams->curNumb++)
     {
+        ResetAcqTime();
         StartAcquisition();
 
         m_andorCcdParams->isAcquiring=true;
@@ -262,10 +289,21 @@ void AndorUser::UserGetImage(QString fileName, bool shutterOpen, float expTime, 
         m_andorCcdParams->isAcquiring=false;
 
         QString surfix;
-        surfix.sprintf("%06d", i+1);
+
+        surfix.sprintf("%06d", m_andorCcdParams->curNumb+1+j);
         QString fitsFileName=baseFileName
                              +"_"
                              +surfix;
+
+        while(QFileInfo::exists(fitsFileName))
+        {
+
+            j++;
+            surfix.sprintf("%06d", m_andorCcdParams->curNumb+1+j);
+            fitsFileName=baseFileName
+                                 +"_"
+                                 +surfix;
+        }
 
         SaveAsFITS(fitsFileName.toLatin1().data(), 0);
         qDebug()<<"fits file name: "<<fitsFileName;
@@ -302,11 +340,15 @@ void AndorUser::SelfUpdateStat()
         //emccd gain
         GetEMCCDGain(&m_andorCcdParams->gain);
 
-
+        if(m_acqTmCul.elapsed()>m_andorCcdParams->expTime)
+            m_andorCcdParams->acqProc=100.0;
+        else
+            m_andorCcdParams->acqProc=m_acqTmCul.elapsed()/m_andorCcdParams->expTime*100;
+//        qDebug()<<"acq proc: "<<m_andorCcdParams->acqProc;
     }
 }
 
-void AndorUser::UserGetAllStat(qint32 *temp, bool *coolerSwitch, bool *isAcq, qint32 *gain, qint32 *binx, qint32 *biny, QString *imgSavPath)
+void AndorUser::UserGetAllStat(qint32 *temp, bool *coolerSwitch, bool *isAcq, qint32 *gain, qint32 *binx, qint32 *biny, QString *imgSavPath, float *acqProc, qint32 *curNumb, qint32 *imgAmt)
 {
     if(true == m_andorCcdParams->connected)
     {
@@ -317,6 +359,9 @@ void AndorUser::UserGetAllStat(qint32 *temp, bool *coolerSwitch, bool *isAcq, qi
         *binx = m_andorCcdParams->bin[0];
         *biny = m_andorCcdParams->bin[1];
         *imgSavPath = m_andorCcdParams->imgSavPath;
+        *acqProc = m_andorCcdParams->acqProc;
+        *curNumb = m_andorCcdParams->curNumb;
+        *imgAmt=m_andorCcdParams->fileAmount;
     }
 }
 
@@ -426,13 +471,31 @@ void AndorUser::UserGetImageSavPath(QString *path)
 void AndorUser::UserAbortAcq()
 {
     if(m_andorCcdParams->connected == true)
+    {
         AbortAcquisition();
+        m_andorCcdParams->isAcquiring=false;
+    }
+}
+
+void AndorUser::UserGetCurNumb(qint32 *curNumb)
+{
+    *curNumb=m_andorCcdParams->curNumb;
+}
+
+void AndorUser::UserGetAcqProc(float *acqProc)
+{
+    *acqProc=m_andorCcdParams->acqProc;
 }
 
 void AndorUser::UserGetConnect(bool *connect)
 {
     *connect=m_andorCcdParams->connected;
-//    qDebug()<<"m_andorCcdParams->connected"<<m_andorCcdParams->connected;
+    //    qDebug()<<"m_andorCcdParams->connected"<<m_andorCcdParams->connected;
+}
+
+void AndorUser::ResetAcqTime()
+{
+    m_acqTmCul.restart();
 }
 
 void AndorUser::UserCreateDir(QString path)

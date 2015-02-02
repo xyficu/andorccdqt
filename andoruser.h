@@ -7,6 +7,8 @@
 #include "fitsio.h"
 #include "QProcess"
 #include "xpa.h"
+#include <QTime>
+#include <QThread>
 
 class AndorUser : public QObject
 {
@@ -32,6 +34,10 @@ private:
     QStringList m_argsDs9;
     QString m_argsXpa;
     QString m_ds9Id;
+    qint32 m_curNumb;
+    QTime m_acqTmCul;
+    QThread m_selfUpdtThd;
+
 
     void WriteFitsKeys(QString fileName);
     void StartDs9();
@@ -56,8 +62,8 @@ private slots:
     void UserGetGain(qint32 *gain);
     void UserGetBinning(quint32 bin[2]);
     void UserGetImageSavPath(QString *path);
-    void UserAbortAcq();
     void UserGetConnect(bool *connect);
+    void ResetAcqTime();
 
     void UserCreateDir(QString path);
 
@@ -66,9 +72,13 @@ private slots:
     void UserGetAmountImage();
     void UserGetImage(QString fileName, bool shutterOpen, float expTime, qint32 amount=1);
     void SelfUpdateStat();
-    void UserGetAllStat(qint32 *temp, bool *coolerSwitch, bool *isAcq, qint32 *gain, qint32 *binx, qint32 *biny, QString *imgSavPath);
+    void UserGetAllStat(qint32 *temp, bool *coolerSwitch, bool *isAcq, qint32 *gain, qint32 *binx, qint32 *biny, QString *imgSavPath, float *acqProc, qint32 *curNumb, qint32 *imgAmt);
+    void UserAbortAcq();
+    void UserGetCurNumb(qint32 *curNumb);
+    void UserGetAcqProc(float *acqProc);
 
 signals:
+
 
 public slots:
 

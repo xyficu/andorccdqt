@@ -27,7 +27,8 @@ void AndorTcp::ResolveMessage(QString msg)
     try
     {
         QString deviceType, cmd, value, fileName, shutter, expTime, amount, lt;
-        qint32 temp, gain, binx, biny;
+        qint32 temp, gain, binx, biny, curNumb, imgAmt;
+        float acqProc;
         bool coolerSwitch, isAcq;
         QString imgSavPath, reply;
         //split message to cmd string
@@ -60,6 +61,17 @@ void AndorTcp::ResolveMessage(QString msg)
             m_tcpSocket->waitForBytesWritten();
             qDebug()<<"send:"<<reply;
 
+
+        }
+        else if(cmd == "ABORTACQ")
+        {
+            emit TAbortAcq();
+            //send reply
+            cmdList.insert(cmdList.length()-1, "0");
+            reply = "R"+cmdList.join(',');
+            m_tcpSocket->write(reply.toLatin1());
+            m_tcpSocket->waitForBytesWritten();
+            qDebug()<<"send:"<<reply;
 
         }
         else if(cmd == "PATH")
@@ -130,7 +142,7 @@ void AndorTcp::ResolveMessage(QString msg)
             value = "";
             lt = cmdList[2];
             //emit signal get device status
-            emit TGetAllStat(&temp,&coolerSwitch, &isAcq, &gain, &binx, &biny, &imgSavPath);
+            emit TGetAllStat(&temp,&coolerSwitch, &isAcq, &gain, &binx, &biny, &imgSavPath, &acqProc, &curNumb, &imgAmt);
             //send replay message
             cmdList.insert(cmdList.length()-1, QString::number(temp));
             cmdList.insert(cmdList.length()-1, coolerSwitch==true?"1":"0");
@@ -139,6 +151,9 @@ void AndorTcp::ResolveMessage(QString msg)
             cmdList.insert(cmdList.length()-1, QString::number(binx));
             cmdList.insert(cmdList.length()-1, QString::number(biny));
             cmdList.insert(cmdList.length()-1, imgSavPath);
+            cmdList.insert(cmdList.length()-1, QString::number(acqProc));
+            cmdList.insert(cmdList.length()-1, QString::number(curNumb));
+            cmdList.insert(cmdList.length()-1, QString::number(imgAmt));
             qDebug()<<"binx"<<binx;
             qDebug()<<"biny"<<biny;
             reply = "R"+cmdList.join(',');
