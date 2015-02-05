@@ -6,6 +6,7 @@
 #include "andoruser.h"
 #include <QTimer>
 #include <QDateTime>
+#include <QTime>
 
 class QTcpSocket;
 
@@ -24,6 +25,10 @@ private:
     AndorCcDParams m_andorCcdParams;
     QTimer m_tmrHouseKp;
     QDateTime m_dateTime;
+    QTime m_tmAcqProc;
+    QTimer m_tmrCalAcq;
+    float m_expTime=1,tmp=0;
+    float *m_acqProc=&tmp;
 
     void ResolveMessage(QString msg);
     void ReConnToHost();
@@ -40,6 +45,9 @@ private slots:
     void OnAboutToClose();
     void StopConnect();
     void HouseKeeping();
+    void CalAcqProc(float expTime, float *acqProc);
+    void CalAcqPercent();
+
 
 signals:
     void TGetImage(QString fileName, bool shutterOpen, float expTime, qint32 amount=1);

@@ -281,7 +281,7 @@ void AndorUser::UserGetImage(QString fileName, bool shutterOpen, float expTime, 
     qint32 j=0;
     for(m_andorCcdParams->curNumb=0; m_andorCcdParams->curNumb<amount; m_andorCcdParams->curNumb++)
     {
-        ResetAcqTime();
+        emit CalAcqProc(expTime, &m_andorCcdParams->acqProc);
         StartAcquisition();
 
         m_andorCcdParams->isAcquiring=true;
@@ -293,7 +293,8 @@ void AndorUser::UserGetImage(QString fileName, bool shutterOpen, float expTime, 
         surfix.sprintf("%06d", m_andorCcdParams->curNumb+1+j);
         QString fitsFileName=baseFileName
                              +"_"
-                             +surfix;
+                             +surfix
+                             +".fits";
 
         while(QFileInfo::exists(fitsFileName))
         {
@@ -302,7 +303,8 @@ void AndorUser::UserGetImage(QString fileName, bool shutterOpen, float expTime, 
             surfix.sprintf("%06d", m_andorCcdParams->curNumb+1+j);
             fitsFileName=baseFileName
                                  +"_"
-                                 +surfix;
+                                 +surfix
+                                 +".fits";
         }
 
         SaveAsFITS(fitsFileName.toLatin1().data(), 0);
@@ -493,10 +495,6 @@ void AndorUser::UserGetConnect(bool *connect)
     //    qDebug()<<"m_andorCcdParams->connected"<<m_andorCcdParams->connected;
 }
 
-void AndorUser::ResetAcqTime()
-{
-    m_acqTmCul.restart();
-}
 
 void AndorUser::UserCreateDir(QString path)
 {

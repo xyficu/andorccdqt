@@ -57,6 +57,7 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(&m_andorTcp, SIGNAL(TSetGain(qint32)), &m_andorUser, SLOT(UserSetGain(qint32)), Qt::QueuedConnection);
     connect(&m_andorTcp, SIGNAL(TSetBin(qint32,qint32)), &m_andorUser, SLOT(UserSetBinning(qint32,qint32)), Qt::QueuedConnection);
     connect(&m_andorTcp,SIGNAL(TAbortAcq()), &m_andorUser, SLOT(UserAbortAcq()), Qt::QueuedConnection);
+    connect(&m_andorUser, SIGNAL(CalAcqProc(float,float*)), &m_andorTcp, SLOT(CalAcqProc(float,float*)), Qt::QueuedConnection);
 
     //setup ui signal to tcp slots
     connect(this, SIGNAL(MStartConToHost()), &m_andorTcp, SLOT(NewConnect()), Qt::QueuedConnection);

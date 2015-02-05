@@ -63,7 +63,7 @@ private slots:
     void UserGetBinning(quint32 bin[2]);
     void UserGetImageSavPath(QString *path);
     void UserGetConnect(bool *connect);
-    void ResetAcqTime();
+
 
     void UserCreateDir(QString path);
 
@@ -78,7 +78,7 @@ private slots:
     void UserGetAcqProc(float *acqProc);
 
 signals:
-
+    void CalAcqProc(float expTime, float *acqProc);
 
 public slots:
 

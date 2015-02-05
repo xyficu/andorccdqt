@@ -6,6 +6,8 @@
 AndorTcp::AndorTcp(QObject *parent) : QObject(parent)
 {
     m_tcpSocket=new QTcpSocket(this);
+
+
     connect(m_tcpSocket, SIGNAL(readyRead()), this, SLOT(ReadMessage()));
     connect(m_tcpSocket, SIGNAL(error(QAbstractSocket::SocketError)), this, SLOT(DispalyError(QAbstractSocket::SocketError)));
     connect(m_tcpSocket, SIGNAL(connected()), this, SLOT(OnConnected()));
@@ -14,11 +16,19 @@ AndorTcp::AndorTcp(QObject *parent) : QObject(parent)
 
     connect(&m_tmrHouseKp, SIGNAL(timeout()), this, SLOT(HouseKeeping()));
     m_tmrHouseKp.start(10000);
+
+    connect(&m_tmrCalAcq, SIGNAL(timeout()), this, SLOT(CalAcqPercent()));
+    m_tmrCalAcq.start(200);
+
+    m_tmAcqProc.start();
 }
 
 AndorTcp::~AndorTcp()
 {
     OnAboutToClose();
+    m_tmrCalAcq.stop();
+    m_tmrHouseKp.stop();
+
     m_tcpSocket->close();
 }
 
@@ -154,8 +164,8 @@ void AndorTcp::ResolveMessage(QString msg)
             cmdList.insert(cmdList.length()-1, QString::number(acqProc));
             cmdList.insert(cmdList.length()-1, QString::number(curNumb));
             cmdList.insert(cmdList.length()-1, QString::number(imgAmt));
-            qDebug()<<"binx"<<binx;
-            qDebug()<<"biny"<<biny;
+//            qDebug()<<"binx"<<binx;
+//            qDebug()<<"biny"<<biny;
             reply = "R"+cmdList.join(',');
             m_tcpSocket->write(reply.toLatin1());
             m_tcpSocket->waitForBytesWritten();
@@ -212,6 +222,24 @@ void AndorTcp::HouseKeeping()
         m_tcpSocket->write(msg);
         m_tcpSocket->waitForBytesWritten();
     }
+}
+
+void AndorTcp::CalAcqProc(float expTime, float *acqProc)
+{
+    m_expTime=expTime;
+    m_acqProc=acqProc;
+    m_tmAcqProc.restart();
+//    qDebug()<<"exptime: "<<expTime<<" acqProc:"<<*acqProc;
+}
+
+
+void AndorTcp::CalAcqPercent()
+{
+    if(m_tmAcqProc.elapsed()/1000>m_expTime||m_expTime==0)
+        *m_acqProc=100;
+    else
+        *m_acqProc=QString::number( m_tmAcqProc.elapsed()/1000.0/m_expTime*100, 'f', 2).toFloat();
+//    qDebug()<<"acqproc: "<<*m_acqProc;
 }
 
 void AndorTcp::NewConnect()
