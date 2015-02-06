@@ -37,6 +37,7 @@ void AndorTcp::ResolveMessage(QString msg)
     try
     {
         QString deviceType, cmd, value, fileName, shutter, expTime, amount, lt;
+        QString ra, dec, ut, st, futId, imgType, filColor;
         qint32 temp, gain, binx, biny, curNumb, imgAmt;
         float acqProc;
         bool coolerSwitch, isAcq;
@@ -58,6 +59,8 @@ void AndorTcp::ResolveMessage(QString msg)
             shutter = cmdList[3];
             expTime = cmdList[4];
             amount = cmdList[5];
+
+
             lt = cmdList[6];
             //emit signal set filter wheel position
             emit TGetImage(fileName,

@@ -8,26 +8,7 @@
 AndorUser::AndorUser(QObject *parent) : QObject(parent)
 {
     m_andorCcdParams = new AndorCcDParams();
-    //initial ccd params
-    m_andorCcdParams->bin[0] = 1;
-    m_andorCcdParams->bin[1] = 1;
-    m_andorCcdParams->binSwitch = false;
-    m_andorCcdParams->conSnap = false;
-    m_andorCcdParams->coolerSwitch = false;
-    m_andorCcdParams->expTime = 0.1;
-    m_andorCcdParams->fileAmount = 1;
-    m_andorCcdParams->fileName = "andor_image";
-    m_andorCcdParams->gain = 1;
-    m_andorCcdParams->gainSwitch = false;
-    m_andorCcdParams->imgSavPath = "./";
-    m_andorCcdParams->isAcquiring = false;
-    m_andorCcdParams->shutter = false;
-    m_andorCcdParams->temp = -80;
-    m_andorCcdParams->width = 1024;
-    m_andorCcdParams->height = 1024;
-    m_andorCcdParams->readMode = 4;
-    m_andorCcdParams->connected = false;
-    m_andorCcdParams->curNumb=0;
+
 
 //    InitCamera();
 
@@ -59,6 +40,8 @@ void AndorUser::WriteFitsKeys(QString fileName)
     fitsfile* fptr;
     char card[500];
     int status = 0, nkeys;
+    float fvalue=0;
+    QString value ="";
     ffopen(&fptr, fileName.toLatin1().data(), READWRITE, &status);
 //    fits_open_file(&fptr, fileName.toLatin1().data(), READONLY, &status);
 
@@ -77,50 +60,49 @@ void AndorUser::WriteFitsKeys(QString fileName)
     //write keyword
 //    char *value = "keyvalue";
 //    fits_write_key(fptr, TSTRING, "keyname", value, "comm", &status);
-    QString value = "bao";
+    value = "bao";
     fits_write_key(fptr, TSTRING, "OBSERVAT", value.toLatin1().data(), "observatory", &status);
-    value = "40:23:45.36";
-    fits_write_key(fptr, TSTRING, "LATITUDE", value.toLatin1().data(), "latitude of the telescope", &status);
-    value = "117:34:28.35";
-    fits_write_key(fptr, TSTRING, "LONGITUD", value.toLatin1().data(), "longitude of the telescope", &status);
+//    value = "40:23:45.36";
+//    fits_write_key(fptr, TSTRING, "LATITUDE", value.toLatin1().data(), "latitude of the telescope", &status);
+//    value = "117:34:28.35";
+//    fits_write_key(fptr, TSTRING, "LONGITUD", value.toLatin1().data(), "longitude of the telescope", &status);
     value = "YYMMDDHHMMSSXS1ANO0";
+    value = m_andorCcdParams->dateObs+"X"+m_andorCcdParams->futID+"AN"+m_andorCcdParams->imgType[0]+"0";
     fits_write_key(fptr, TSTRING, "IMAGEID", value.toLatin1().data(), "", &status);
-    fits_write_comment(fptr, "date(6)-time(6)-observatory(1)-futID(2)-ccdmodel(2)-ccdtype(1)_product level(1)", &status);
+    fits_write_comment(fptr, "date(6)-time(6)-observatory(1)-futID(2)-ccdmodel(2)-ccdtype/imgtype(1)_product level(1)", &status);
     value = "ANDOR iXon3 DU888";
     fits_write_key(fptr, TSTRING, "CAMTYPE", value.toLatin1().data(), "camera type", &status);
-    value = "OBJECT";
+    value = m_andorCcdParams->imgType;
     fits_write_key(fptr, TSTRING, "IMAGETYP", value.toLatin1().data(), "image type", &status);
     value = "YYYY-MM-DDThh:mm:ss.sss";
     fits_write_key(fptr, TSTRING, "DATE-OBS", value.toLatin1().data(), "universal date", &status);
-    value = "YYYY-MM-DDThh:mm:ss.sss";
-    fits_write_key(fptr, TSTRING, "D-OBS-LC", value.toLatin1().data(), "local date", &status);
-    value = "222";float fvalue = 222;
+    fvalue = m_andorCcdParams->expTime;
     fits_write_key(fptr, TFLOAT, "EXPTIME", &fvalue, "exposure time(sec)", &status);
-    value = "HH:MM:SS.SSS";
-    fits_write_key(fptr, TSTRING, "LST", value.toLatin1().data(), "local sidereal time of starting exposure", &status);
-    value = "HH:MM:SS.SSS";
+    value = m_andorCcdParams->st;
+    fits_write_key(fptr, TSTRING, "ST", value.toLatin1().data(), "sidereal time of starting exposure", &status);
+    value = m_andorCcdParams->raTel;
     fits_write_key(fptr, TSTRING, "RA-TEL", value.toLatin1().data(), "RA of telescope", &status);
-    value = "DD:MM:SS.SSS";
+    value = m_andorCcdParams->decTel;
     fits_write_key(fptr, TSTRING, "DEC-TEL", value.toLatin1().data(), "DEC of telescope", &status);
     value = "2000";
     fits_write_key(fptr, TSTRING, "EQUINOX", value.toLatin1().data(), "", &status);
-    value = "S1";
+    value = m_andorCcdParams->futID;
     fits_write_key(fptr, TSTRING, "FUTID", value.toLatin1().data(), "ID of follow up telescope, east(S1), west(S2)", &status);
-    value = "filter ";
+    value = m_andorCcdParams->filColor;
     fits_write_key(fptr, TSTRING, "FILTER", value.toLatin1().data(), "name of selected filter", &status);
     value = "to be calulated";
     fits_write_key(fptr, TSTRING, "PXLSCLE", value.toLatin1().data(), "pixel scale", &status);
-    value = "gain..";
+    value = QString::number(m_andorCcdParams->gain);
     fits_write_key(fptr, TSTRING, "GAIN", value.toLatin1().data(), "e-/ADU", &status);
     value = "1";
     fits_write_key(fptr, TSTRING, "RDNOISE", value.toLatin1().data(), "read out noise(e-) <1 with EM gain", &status);
     value = "30";
     fits_write_key(fptr, TSTRING, "READRATE", value.toLatin1().data(), "MHz", &status);
-    value = "0";
-    fits_write_key(fptr, TSTRING, "TEMPSET", value.toLatin1().data(), "set CCD temperature", &status);
-    value = "0";
-    fits_write_key(fptr, TSTRING, "TEMPACT", value.toLatin1().data(), "actual CCD temperature", &status);
-    value = "who";
+    fvalue = m_andorCcdParams->tempSet;
+    fits_write_key(fptr, TFLOAT, "TEMPSET", &fvalue, "set CCD temperature", &status);
+    fvalue = m_andorCcdParams->tempAct;
+    fits_write_key(fptr, TFLOAT, "TEMPACT", &fvalue, "actual CCD temperature", &status);
+    value = m_andorCcdParams->observer;
     fits_write_key(fptr, TSTRING, "OBSERVER", value.toLatin1().data(), "name of the observer", &status);
 
 
@@ -327,7 +309,7 @@ void AndorUser::SelfUpdateStat()
     {
         unsigned int state;
         //cooler status
-        state = GetTemperature(&m_andorCcdParams->temp);
+        state = GetTemperature(&m_andorCcdParams->tempAct);
         switch (state) {
         case DRV_TEMPERATURE_NOT_REACHED:
             m_andorCcdParams->coolerSwitch=true;
@@ -354,7 +336,7 @@ void AndorUser::UserGetAllStat(qint32 *temp, bool *coolerSwitch, bool *isAcq, qi
 {
     if(true == m_andorCcdParams->connected)
     {
-        *temp = m_andorCcdParams->temp;
+        *temp = m_andorCcdParams->tempAct;
         *coolerSwitch = m_andorCcdParams->coolerSwitch;
         *isAcq = m_andorCcdParams->isAcquiring;
         *gain = m_andorCcdParams->gain;
@@ -417,7 +399,7 @@ void AndorUser::UserSetReadMode(qint32 readMode)
 void AndorUser::UserSetTemp(qint32 temp)
 {
     SetTemperature(temp);
-    m_andorCcdParams->temp = temp;
+    m_andorCcdParams->tempSet = temp;
 }
 
 void AndorUser::UserSetCoolerSwitch(bool coolerSwitch)
@@ -439,7 +421,7 @@ void AndorUser::UserGetTemp(qint32 *temp)
 {
 
     //for getting the current state of the cooler
-    *temp = m_andorCcdParams->temp;
+    *temp = m_andorCcdParams->tempAct;
 
 }
 
