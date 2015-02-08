@@ -65,12 +65,14 @@ private slots:
     void UserGetConnect(bool *connect);
 
 
-    void UserCreateDir(QString path);
+    void UserCreateDir(QString path, bool *res);
 
     void InitCamera();
     void UserGetImage();
     void UserGetAmountImage();
-    void UserGetImage(QString fileName, bool shutterOpen, float expTime, qint32 amount=1);
+    void UserGetImage(QString fileName, bool shutterOpen, float expTime, qint32 amount,
+                      QString ra, QString dec, QString ut, QString st, QString futId,
+                      QString imgType, QString filtColor, QString lt);
     void SelfUpdateStat();
     void UserGetAllStat(qint32 *temp, bool *coolerSwitch, bool *isAcq, qint32 *gain, qint32 *binx, qint32 *biny, QString *imgSavPath, float *acqProc, qint32 *curNumb, qint32 *imgAmt);
     void UserAbortAcq();

@@ -37,7 +37,7 @@ void AndorTcp::ResolveMessage(QString msg)
     try
     {
         QString deviceType, cmd, value, fileName, shutter, expTime, amount, lt;
-        QString ra, dec, ut, st, futId, imgType, filColor;
+        QString ra, dec, ut, st, futId, imgType, filtColor;
         qint32 temp, gain, binx, biny, curNumb, imgAmt;
         float acqProc;
         bool coolerSwitch, isAcq;
@@ -59,14 +59,21 @@ void AndorTcp::ResolveMessage(QString msg)
             shutter = cmdList[3];
             expTime = cmdList[4];
             amount = cmdList[5];
-
-
-            lt = cmdList[6];
+            ra = cmdList[6];
+            dec = cmdList[7];
+            ut = cmdList[8];
+            st = cmdList[9];
+            futId = cmdList[10];
+            imgType = cmdList[11];
+            filtColor = cmdList[12];
+            lt = cmdList[13];
             //emit signal set filter wheel position
             emit TGetImage(fileName,
                            shutter.toInt()==1?true:false,
                            expTime.toFloat(),
-                           amount.toInt());
+                           amount.toInt(),
+                           ra, dec, ut, st, futId,
+                           imgType, filtColor, lt);
             //send reply message
             cmdList.insert(cmdList.length()-1, "0");
             reply = "R"+cmdList.join(',');
@@ -99,6 +106,19 @@ void AndorTcp::ResolveMessage(QString msg)
             m_tcpSocket->waitForBytesWritten();
             qDebug()<<"send:"<<reply;
 
+        }
+        else if(cmd == "MKPATH")
+        {
+            bool res=false;
+            imgSavPath = cmdList[2];
+            //send signal
+            emit TCreateImgPath(imgSavPath, &res);
+            //send reply
+            cmdList.insert(cmdList.length()-1, QString::number(res==true?0:-1));
+            reply = "R"+cmdList.join(',');
+            m_tcpSocket->write(reply.toLatin1());
+            m_tcpSocket->waitForBytesWritten();
+            qDebug()<<"send:"<<reply;
         }
         else if(cmd == "SETGAIN")
         {

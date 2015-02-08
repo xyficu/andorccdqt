@@ -49,6 +49,7 @@ void AndorUser::WriteFitsKeys(QString fileName)
     fits_delete_key(fptr, "COMMENT", &status);
     fits_delete_key(fptr, "COMMENT", &status);
 
+
 //    fits_get_hdrspace(fptr, &nkeys, NULL, &status);
 //    for(int i=1; i<=nkeys; i++)
 //    {
@@ -67,30 +68,32 @@ void AndorUser::WriteFitsKeys(QString fileName)
 //    value = "117:34:28.35";
 //    fits_write_key(fptr, TSTRING, "LONGITUD", value.toLatin1().data(), "longitude of the telescope", &status);
     value = "YYMMDDHHMMSSXS1ANO0";
-    value = m_andorCcdParams->dateObs+"X"+m_andorCcdParams->futID+"AN"+m_andorCcdParams->imgType[0]+"0";
+    value = m_andorCcdParams->dateObs;
+    value = value.remove(8, 1).remove(12,4).remove(0,2)+"X"+m_andorCcdParams->futID+"AN"+m_andorCcdParams->imgType[0]+"0";
     fits_write_key(fptr, TSTRING, "IMAGEID", value.toLatin1().data(), "", &status);
     fits_write_comment(fptr, "date(6)-time(6)-observatory(1)-futID(2)-ccdmodel(2)-ccdtype/imgtype(1)_product level(1)", &status);
     value = "ANDOR iXon3 DU888";
     fits_write_key(fptr, TSTRING, "CAMTYPE", value.toLatin1().data(), "camera type", &status);
     value = m_andorCcdParams->imgType;
     fits_write_key(fptr, TSTRING, "IMAGETYP", value.toLatin1().data(), "image type", &status);
-    value = "YYYY-MM-DDThh:mm:ss.sss";
-    fits_write_key(fptr, TSTRING, "DATE-OBS", value.toLatin1().data(), "universal date", &status);
+    value = m_andorCcdParams->dateObs;
+    value = value.insert(13,":").insert(11,":").insert(6,"-").insert(4,"-");
+    fits_write_key(fptr, TSTRING, "DATE-OBS", value.toLatin1().data(), "local date from mount", &status);
     fvalue = m_andorCcdParams->expTime;
     fits_write_key(fptr, TFLOAT, "EXPTIME", &fvalue, "exposure time(sec)", &status);
     value = m_andorCcdParams->st;
-    fits_write_key(fptr, TSTRING, "ST", value.toLatin1().data(), "sidereal time of starting exposure", &status);
-    value = m_andorCcdParams->raTel;
-    fits_write_key(fptr, TSTRING, "RA-TEL", value.toLatin1().data(), "RA of telescope", &status);
-    value = m_andorCcdParams->decTel;
-    fits_write_key(fptr, TSTRING, "DEC-TEL", value.toLatin1().data(), "DEC of telescope", &status);
+    fits_write_key(fptr, TSTRING, "ST", value.toLatin1().data(), "sidereal time of starting exposure from mount", &status);
+    value = m_andorCcdParams->ra;
+    fits_write_key(fptr, TSTRING, "RA", value.toLatin1().data(), "RA of target", &status);
+    value = m_andorCcdParams->dec;
+    fits_write_key(fptr, TSTRING, "DEC", value.toLatin1().data(), "DEC of target", &status);
     value = "2000";
     fits_write_key(fptr, TSTRING, "EQUINOX", value.toLatin1().data(), "", &status);
     value = m_andorCcdParams->futID;
     fits_write_key(fptr, TSTRING, "FUTID", value.toLatin1().data(), "ID of follow up telescope, east(S1), west(S2)", &status);
     value = m_andorCcdParams->filColor;
     fits_write_key(fptr, TSTRING, "FILTER", value.toLatin1().data(), "name of selected filter", &status);
-    value = "to be calulated";
+    value = "0.525";
     fits_write_key(fptr, TSTRING, "PXLSCLE", value.toLatin1().data(), "pixel scale", &status);
     value = QString::number(m_andorCcdParams->gain);
     fits_write_key(fptr, TSTRING, "GAIN", value.toLatin1().data(), "e-/ADU", &status);
@@ -104,6 +107,9 @@ void AndorUser::WriteFitsKeys(QString fileName)
     fits_write_key(fptr, TFLOAT, "TEMPACT", &fvalue, "actual CCD temperature", &status);
     value = m_andorCcdParams->observer;
     fits_write_key(fptr, TSTRING, "OBSERVER", value.toLatin1().data(), "name of the observer", &status);
+
+//    for(int i=10; i<=42; i++)
+//        fits_delete_record(fptr, i, &status);
 
 
     fits_close_file(fptr, &status);
@@ -233,7 +239,9 @@ void AndorUser::UserGetAmountImage()
 
 }
 
-void AndorUser::UserGetImage(QString fileName, bool shutterOpen, float expTime, qint32 amount)
+void AndorUser::UserGetImage(QString fileName, bool shutterOpen, float expTime, qint32 amount,
+                             QString ra, QString dec, QString ut, QString st,
+                             QString futId, QString imgType, QString filtColor, QString lt)
 {
     //if camera is not connected, return
     if(m_andorCcdParams->connected==false)
@@ -250,6 +258,15 @@ void AndorUser::UserGetImage(QString fileName, bool shutterOpen, float expTime, 
         break;
     }
 
+    m_andorCcdParams->ra=ra;
+    m_andorCcdParams->dec=dec;
+    m_andorCcdParams->ut=ut;
+    m_andorCcdParams->st=st;
+    m_andorCcdParams->futID=futId;
+    m_andorCcdParams->imgType=imgType;
+    m_andorCcdParams->filColor=filtColor;
+    m_andorCcdParams->dateObs = lt;
+    m_andorCcdParams->lt=lt;
     //set exposure time
     SetExposureTime(expTime);
     m_andorCcdParams->expTime=expTime;
@@ -478,20 +495,20 @@ void AndorUser::UserGetConnect(bool *connect)
 }
 
 
-void AndorUser::UserCreateDir(QString path)
+void AndorUser::UserCreateDir(QString path, bool *res)
 {
     //check if path is valid
     if(QFileInfo::exists(path))
     {
         qDebug()<<path<<" already exists";
+        *res=true;
         return;
     }
     else
     {
         // if path is not exist, create it
-        qDebug()<<"Image path: "<<path<<" is not exist";
         QDir dir;
-        if(dir.mkpath(path))
+        if(*res=dir.mkpath(path))
             qDebug()<<"mkdir "<<path<<" successfully!";
         else
             qDebug()<<path<<" create failed";

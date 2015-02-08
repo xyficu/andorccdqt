@@ -35,12 +35,13 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(this, SIGNAL(MGetCoolerSwitch(bool*)), &m_andorUser, SLOT(UserGetCoolerSwitch(bool*)), Qt::DirectConnection);
     connect(this, SIGNAL(MGetStat(bool*)), &m_andorUser, SLOT(UserGetStat(bool*)), Qt::DirectConnection);
     connect(this, SIGNAL(MGetAmountImage()), &m_andorUser, SLOT(UserGetAmountImage()), Qt::QueuedConnection);
-    connect(this, SIGNAL(MGetImage(QString,bool,float,qint32)),
-            &m_andorUser, SLOT(UserGetImage(QString,bool,float,qint32)), Qt::QueuedConnection);
+    connect(this, SIGNAL(MGetImage(QString,bool,float,qint32,QString,QString,QString,QString,QString,QString,QString,QString)),
+            &m_andorUser, SLOT(UserGetImage(QString,bool,float,qint32,QString,QString,QString,QString,QString,QString,QString,QString)), Qt::QueuedConnection);
     connect(this, SIGNAL(MGetConnect(bool*)), &m_andorUser, SLOT(UserGetConnect(bool*)), Qt::DirectConnection);
     connect(this, SIGNAL(MAbortAcq()), &m_andorUser, SLOT(UserAbortAcq()), Qt::QueuedConnection);
     connect(this, SIGNAL(MGetAcqProc(float*)), &m_andorUser, SLOT(UserGetAcqProc(float*)), Qt::DirectConnection);
     connect(this, SIGNAL(MGetCurNumb(qint32*)), &m_andorUser, SLOT(UserGetCurNumb(qint32*)), Qt::DirectConnection);
+    connect(this, SIGNAL(MCreateImgPath(QString,bool*)), &m_andorUser, SLOT(UserCreateDir(QString,bool*)), Qt::QueuedConnection);
 
     emit MInitCamera();
 
@@ -51,13 +52,15 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(&m_andorTcp, SIGNAL(TSetCoolerSwitch(bool)), &m_andorUser, SLOT(UserSetCoolerSwitch(bool)), Qt::QueuedConnection);
     connect(&m_andorTcp, SIGNAL(TSetTemp(qint32)), &m_andorUser, SLOT(UserSetTemp(qint32)), Qt::QueuedConnection);
     connect(&m_andorTcp, SIGNAL(TSetImageSavPath(QString)), &m_andorUser, SLOT(UserSetImageSavPath(QString)), Qt::QueuedConnection);
-    connect(&m_andorTcp, SIGNAL(TGetImage(QString,bool,float,qint32)), &m_andorUser, SLOT(UserGetImage(QString,bool,float,qint32)), Qt::QueuedConnection);
+    connect(&m_andorTcp, SIGNAL(TGetImage(QString,bool,float,qint32,QString,QString,QString,QString,QString,QString,QString,QString)),
+            &m_andorUser, SLOT(UserGetImage(QString,bool,float,qint32,QString,QString,QString,QString,QString,QString,QString,QString)), Qt::QueuedConnection);
     connect(&m_andorTcp, SIGNAL(TGetAllStat(qint32*,bool*,bool*,qint32*,qint32*,qint32*,QString*,float*,qint32*,qint32*)),
             &m_andorUser, SLOT(UserGetAllStat(qint32*,bool*,bool*,qint32*,qint32*,qint32*,QString*,float*,qint32*,qint32*)), Qt::DirectConnection);
     connect(&m_andorTcp, SIGNAL(TSetGain(qint32)), &m_andorUser, SLOT(UserSetGain(qint32)), Qt::QueuedConnection);
     connect(&m_andorTcp, SIGNAL(TSetBin(qint32,qint32)), &m_andorUser, SLOT(UserSetBinning(qint32,qint32)), Qt::QueuedConnection);
     connect(&m_andorTcp,SIGNAL(TAbortAcq()), &m_andorUser, SLOT(UserAbortAcq()), Qt::QueuedConnection);
     connect(&m_andorUser, SIGNAL(CalAcqProc(float,float*)), &m_andorTcp, SLOT(CalAcqProc(float,float*)), Qt::QueuedConnection);
+    connect(&m_andorTcp, SIGNAL(TCreateImgPath(QString,bool*)), &m_andorUser, SLOT(UserCreateDir(QString,bool*)), Qt::QueuedConnection);
 
     //setup ui signal to tcp slots
     connect(this, SIGNAL(MStartConToHost()), &m_andorTcp, SLOT(NewConnect()), Qt::QueuedConnection);
@@ -163,7 +166,9 @@ void MainWindow::on_pushButton_AcqAmountImg_clicked()
     emit MGetImage(ui->lineEdit_ImageName->text(),
                    true, //ui->checkBox_shutterOpen->checkState()==Qt::Checked?true:false,
                    ui->lineEdit_ExpTime->text().toFloat(),
-                   ui->lineEdit_ImageAmount->text().toInt());
+                   ui->lineEdit_ImageAmount->text().toInt(),
+                   "ra","dec", "ut", "st", "S1",
+                   "OBJECT", "filterColor", "lt");
 }
 
 void MainWindow::on_pushButton_CreatDir_clicked()

@@ -63,11 +63,14 @@ signals:
     void MGetCoolerSwitch(bool *coolerSwitch);
     void MGetStat(bool *isAcquiring);
     void MGetAmountImage();
-    void MGetImage(QString fileName, bool shutterOpen, float expTime, qint32 amount=1);
+    void MGetImage(QString fileName, bool shutterOpen, float expTime, qint32 amount,
+                   QString ra, QString dec, QString ut, QString st, QString futId,
+                   QString imgType, QString filtColor, QString lt);
     void MGetConnect(bool *connect);
     void MAbortAcq();
     void MGetAcqProc(float *acqProc);
     void MGetCurNumb(qint32 *curNumb);
+    void MCreateImgPath(QString imgPath, bool *res);
 
     void MStartConToHost();
     void MStopConToHost();

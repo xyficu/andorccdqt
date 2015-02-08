@@ -34,12 +34,13 @@ public:
         dateObs="";
         st="";
         ut="";
-        raTel="";
-        decTel="";
+        ra="";
+        dec="";
         futID="";
         filColor="";
         tempAct=0;
         observer="";
+        lt = "";
     }
 
 public:
@@ -66,10 +67,11 @@ public:
     QString dateObs;
     QString ut;
     QString st;
-    QString raTel;
-    QString decTel;
+    QString ra;
+    QString dec;
     QString futID;
     QString filColor;
     qint32 tempAct;
     QString observer;
+    QString lt;
 };
